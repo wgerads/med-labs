@@ -1,0 +1,269 @@
+definitions:
+  dto.MedicalCardCreateRequest:
+    properties:
+      doctor_id:
+        type: integer
+      patient_id:
+        type: integer
+      ward_id:
+        type: integer
+    type: object
+  dto.MedicalCardResponse:
+    properties:
+      closed_at:
+        type: string
+      diagnosis_id:
+        type: integer
+      doctor_id:
+        type: integer
+      id:
+        type: integer
+      opened_at:
+        type: string
+      patient_id:
+        type: integer
+      prescriptions:
+        items:
+          $ref: '#/definitions/dto.PrescriptionResponse'
+        type: array
+      recommendations:
+        type: string
+      ward_id:
+        type: integer
+    type: object
+  dto.MedicalCardUpdateRequest:
+    properties:
+      diagnosis_id:
+        type: integer
+      recommendations:
+        type: string
+    type: object
+  dto.MedicationResponse:
+    properties:
+      form:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  dto.PatientCreateRequest:
+    properties:
+      birth_date:
+        type: string
+      full_name:
+        type: string
+      phone:
+        type: string
+      policy:
+        type: string
+    type: object
+  dto.PatientResponse:
+    properties:
+      birth_date:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      phone:
+        type: string
+      policy:
+        type: string
+    type: object
+  dto.PrescriptionCreateRequest:
+    properties:
+      duration:
+        type: string
+      frequency:
+        type: string
+      medical_card_id:
+        type: integer
+      medication_id:
+        type: integer
+    type: object
+  dto.PrescriptionResponse:
+    properties:
+      duration:
+        type: string
+      frequency:
+        type: string
+      id:
+        type: integer
+      medication_id:
+        type: integer
+    type: object
+  dto.WardResponse:
+    properties:
+      beds:
+        type: integer
+      free_beds:
+        type: integer
+      id:
+        type: integer
+      number:
+        type: integer
+    type: object
+info:
+  contact: {}
+  title: Med API
+  version: "1.0"
+paths:
+  /medical-cards:
+    post:
+      description: 'Госпитализация: открывает карту пациента в палате, если в ней
+        есть свободная койка'
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MedicalCardCreateRequest'
+      responses:
+        "200":
+          description: OK
+      summary: Открыть медицинскую карту
+      tags:
+      - MedicalCard
+  /medical-cards/{id}:
+    get:
+      description: Возвращает карту вместе с назначениями
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MedicalCardResponse'
+      summary: Получить медицинскую карту
+      tags:
+      - MedicalCard
+    patch:
+      description: 'Выписка: указывает диагноз и рекомендации, закрывает карту'
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MedicalCardUpdateRequest'
+      responses:
+        "200":
+          description: OK
+      summary: Закрыть медицинскую карту
+      tags:
+      - MedicalCard
+  /medications:
+    get:
+      description: Возвращает справочник медикаментов
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.MedicationResponse'
+            type: array
+      summary: Список медикаментов
+      tags:
+      - Medication
+  /patients:
+    get:
+      description: Возвращает всех пациентов
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.PatientResponse'
+            type: array
+      summary: Список пациентов
+      tags:
+      - Patient
+    post:
+      description: Регистрирует нового пациента. Дата рождения в формате ГГГГ-ММ-ДД,
+        телефон можно не указывать
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PatientCreateRequest'
+      responses:
+        "200":
+          description: OK
+      summary: Создать пациента
+      tags:
+      - Patient
+  /patients/{id}:
+    get:
+      description: Возвращает пациента по идентификатору
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PatientResponse'
+      summary: Получить пациента
+      tags:
+      - Patient
+  /prescriptions:
+    post:
+      description: Добавляет назначение в медицинскую карту
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PrescriptionCreateRequest'
+      responses:
+        "200":
+          description: OK
+      summary: Назначить медикамент
+      tags:
+      - Prescription
+  /prescriptions/{id}:
+    delete:
+      description: Удаляет назначение по идентификатору
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Отменить назначение
+      tags:
+      - Prescription
+  /wards:
+    get:
+      description: Возвращает палаты с количеством свободных коек
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.WardResponse'
+            type: array
+      summary: Список палат
+      tags:
+      - Ward
+swagger: "2.0"
